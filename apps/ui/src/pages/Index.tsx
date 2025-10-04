@@ -1,22 +1,22 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { PortfolioHeader } from "@/components/PortfolioHeader";
-import { PortfolioValueCard } from "@/components/PortfolioValueCard";
-import { AssetCard } from "@/components/AssetCard";
-import { PortfolioChart } from "@/components/PortfolioChart";
-import { getTransactions } from "@/lib/portfolioStorage";
-import { getAllPrices } from "@/lib/priceService";
-import { calculateHistoricalValueFromTransactions } from "@/lib/historicalPriceService";
-import { AssetHolding, AssetType, PortfolioValue } from "@/types/portfolio";
-import { Settings, DollarSign, Coins } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { PortfolioHeader } from '@/components/PortfolioHeader';
+import { PortfolioValueCard } from '@/components/PortfolioValueCard';
+import { AssetCard } from '@/components/AssetCard';
+import { PortfolioChart } from '@/components/PortfolioChart';
+import { getTransactions } from '@/lib/portfolioStorage';
+import { getAllPrices } from '@/lib/priceService';
+import { calculateHistoricalValueFromTransactions } from '@/lib/historicalPriceService';
+import { AssetHolding, AssetType, PortfolioValue } from '@/types/portfolio';
+import { Settings, Coins } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 const Index = () => {
   const navigate = useNavigate();
   const [holdings, setHoldings] = useState<AssetHolding[]>([]);
   const [portfolioHistory, setPortfolioHistory] = useState<PortfolioValue[]>(
-    [],
+    []
   );
   const [totalILS, setTotalILS] = useState(0);
 
@@ -26,9 +26,9 @@ const Index = () => {
     isLoading: pricesLoading,
     error: pricesError,
   } = useQuery({
-    queryKey: ["current-prices"],
+    queryKey: ['current-prices'],
     queryFn: async () => {
-      const transactions = getTransactions();
+      const transactions = await getTransactions();
       const assets = [...new Set(transactions.map((t) => t.asset))];
       return await getAllPrices(assets);
     },
@@ -39,33 +39,17 @@ const Index = () => {
 
   // Fetch historical portfolio data based on actual transactions
   const { data: historicalData, isLoading: historyLoading } = useQuery({
-    queryKey: ["portfolio-history"],
+    queryKey: ['portfolio-history'],
     queryFn: async () => {
-      const transactions = getTransactions();
+      const transactions = await getTransactions();
       return await calculateHistoricalValueFromTransactions(transactions);
     },
     refetchInterval: 300000, // Refetch every 5 minutes
     retry: 2,
   });
 
-  useEffect(() => {
-    calculateHoldings();
-  }, [priceMap]);
-
-  useEffect(() => {
-    console.log("📊 Historical data updated:", historicalData);
-    if (historicalData && historicalData.length > 0) {
-      setPortfolioHistory(historicalData);
-      console.log(
-        "✅ Portfolio history set with",
-        historicalData.length,
-        "data points",
-      );
-    }
-  }, [historicalData]);
-
-  const calculateHoldings = () => {
-    const transactions = getTransactions();
+  const calculateHoldings = useCallback(async () => {
+    const transactions = await getTransactions();
     const assetMap = new Map<
       AssetType,
       { quantity: number; totalCost: number }
@@ -74,7 +58,7 @@ const Index = () => {
     // Calculate holdings from transactions
     transactions.forEach((tx) => {
       const existing = assetMap.get(tx.asset) || { quantity: 0, totalCost: 0 };
-      if (tx.type === "buy") {
+      if (tx.type === 'buy') {
         assetMap.set(tx.asset, {
           quantity: existing.quantity + tx.quantity,
           totalCost: existing.totalCost + tx.totalILS,
@@ -116,7 +100,23 @@ const Index = () => {
 
     setHoldings(holdingsArray);
     setTotalILS(portfolioILS);
-  };
+  }, [priceMap]);
+
+  useEffect(() => {
+    calculateHoldings();
+  }, [calculateHoldings, priceMap]);
+
+  useEffect(() => {
+    console.log('📊 Historical data updated:', historicalData);
+    if (historicalData && historicalData.length > 0) {
+      setPortfolioHistory(historicalData);
+      console.log(
+        '✅ Portfolio history set with',
+        historicalData.lengh,
+        'data points'
+      );
+    }
+  }, [historicalData]);
 
   const avgChange =
     holdings.length > 0
@@ -130,8 +130,8 @@ const Index = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">
             {pricesLoading
-              ? "Loading real-time price data..."
-              : "Loading historical data..."}
+              ? 'Loading real-time price data...'
+              : 'Loading historical data...'}
           </p>
         </div>
       </div>
@@ -149,7 +149,7 @@ const Index = () => {
             <p className="text-muted-foreground mb-4">
               {pricesError instanceof Error
                 ? pricesError.message
-                : "Unable to fetch current prices from APIs"}
+                : 'Unable to fetch current prices from APIs'}
             </p>
             <div className="text-sm text-muted-foreground space-y-2">
               <p>Possible causes:</p>
@@ -167,7 +167,7 @@ const Index = () => {
             Retry
           </Button>
           <Button
-            onClick={() => navigate("/admin")}
+            onClick={() => navigate('/admin')}
             variant="outline"
             className="ml-2"
           >
@@ -185,7 +185,7 @@ const Index = () => {
 
         <div className="flex justify-end">
           <Button
-            onClick={() => navigate("/admin")}
+            onClick={() => navigate('/admin')}
             variant="outline"
             className="border-border/50 hover:bg-secondary/50 gap-2"
           >

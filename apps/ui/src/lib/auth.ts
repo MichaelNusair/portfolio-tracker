@@ -1,7 +1,6 @@
 import {
   CognitoUserPool,
   CognitoUser,
-  AuthenticationDetails,
   CognitoUserSession,
 } from 'amazon-cognito-identity-js';
 
@@ -29,7 +28,7 @@ export interface AuthState {
 // Authentication service
 export class AuthService {
   private static instance: AuthService;
-  private currentUser: CognitoUser | null = null;
+  // private currentUser: CognitoUser | null = null;
   private session: CognitoUserSession | null = null;
 
   static getInstance(): AuthService {
@@ -46,13 +45,13 @@ export class AuthService {
 
       if (cognitoUser) {
         cognitoUser.getSession(
-          (err: any, session: CognitoUserSession | null) => {
+          (err: Error | null, session: CognitoUserSession | null) => {
             if (err || !session || !session.isValid()) {
               resolve({ user: null, isAuthenticated: false, isLoading: false });
               return;
             }
 
-            this.currentUser = cognitoUser;
+            //  this.currentUser = cognitoUser;
             this.session = session;
 
             const payload = session.getIdToken().decodePayload();

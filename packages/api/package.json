@@ -16,7 +16,6 @@
     }
   },
   "dependencies": {
-    "tslib": "^2.3.0",
     "zod": "^4.1.11"
   },
   "scripts": {

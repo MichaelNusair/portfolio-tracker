@@ -1,68 +1,49 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { TransactionsTable } from "@/components/TransactionsTable";
-import { AddTransactionForm } from "@/components/AddTransactionForm";
-import { CSVImport } from "@/components/CSVImport";
-import { Transaction } from "@/types/portfolio";
-import {
-  getTransactions,
-  addTransaction,
-  importFromCSV,
-} from "@/lib/portfolioStorage";
-import { ArrowLeft, Wallet, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { TransactionsTable } from '@/components/TransactionsTable';
+import { AddTransactionForm } from '@/components/AddTransactionForm';
+import { CSVImport } from '@/components/CSVImport';
+import { Transaction } from '@/types/portfolio';
+import { getTransactions, addTransaction } from '@/lib/portfolioStorage';
+import { ArrowLeft, Wallet, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
+  const loadTransactions = useCallback(async () => {
+    setTransactions(await getTransactions());
+    toast({
+      title: 'Transactions Loaded',
+      description: 'Your transactions have been loaded successfully.',
+    });
+  }, [toast]);
+
+  const handleAddTransaction = useCallback(
+    async (txData: Omit<Transaction, 'id'>) => {
+      const transaction = await addTransaction(txData);
+      if (transaction) {
+        setTransactions((prev) => [...prev, transaction]);
+      }
+      loadTransactions();
+      toast({
+        title: 'Transaction Added',
+        description: 'Your transaction has been recorded successfully.',
+      });
+    },
+    [loadTransactions, toast]
+  );
+
   useEffect(() => {
     loadTransactions();
-  }, []);
+  }, [loadTransactions]);
 
-  const loadTransactions = () => {
-    setTransactions(getTransactions());
-  };
-
-  const handleAddTransaction = (txData: Omit<Transaction, "id">) => {
-    addTransaction(txData);
-    loadTransactions();
-    toast({
-      title: "Transaction Added",
-      description: "Your transaction has been recorded successfully.",
-    });
-  };
-
-  const handleDeleteTransaction = (id: string) => {
-    toast({
-      title: "Talk to mich",
-      description: "you cant delete from here",
-    }); loadTransactions();
-    toast({
-      title: "Transaction Deleted",
-      description: "The transaction has been removed.",
-    });
-  };
-
-  const handleImportCSV = (_: string) => {
-    toast({
-      title: "Talk to mich",
-      description: "you cant do that",
-    }); loadTransactions();
-  };
-
-  const handleClearAllTransactions = () => {
-    toast({
-      title: "Talk to mich",
-      description: "you cant add from here",
-    }); loadTransactions();
-    toast({
-      title: "All Transactions Cleared",
-      description: "All transactions have been removed from your portfolio.",
-    });
-  };
+  function handleImportCSV(csvText: string) {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -82,7 +63,7 @@ const Admin = () => {
             </div>
           </div>
           <Button
-            onClick={() => navigate("/")}
+            onClick={() => navigate('/')}
             variant="outline"
             className="border-border/50 hover:bg-secondary/50 gap-2"
           >
@@ -93,8 +74,21 @@ const Admin = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-6">
-            <AddTransactionForm onAdd={handleAddTransaction} />
-            <CSVImport onImport={handleImportCSV} />
+            <AddTransactionForm
+              onAdd={async (txData) => {
+                await handleAddTransaction({
+                  ...txData,
+                  userId: '123',
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                });
+              }}
+            />
+            <CSVImport
+              onImport={async (csvText) => {
+                await handleImportCSV(csvText);
+              }}
+            />
           </div>
 
           <div className="lg:col-span-2">
@@ -109,7 +103,12 @@ const Admin = () => {
               </div>
               {transactions.length > 0 && (
                 <Button
-                  onClick={handleClearAllTransactions}
+                  onClick={() => {
+                    toast({
+                      title: 'Talk to mich',
+                      description: 'you cant do that',
+                    });
+                  }}
                   variant="outline"
                   className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive gap-2"
                 >
@@ -121,7 +120,12 @@ const Admin = () => {
             {transactions.length > 0 ? (
               <TransactionsTable
                 transactions={transactions}
-                onDelete={handleDeleteTransaction}
+                onDelete={() => {
+                  toast({
+                    title: 'Talk to mich',
+                    description: 'you cant do that',
+                  });
+                }}
               />
             ) : (
               <div className="rounded-lg border border-border/50 bg-card p-12 text-center">

@@ -1,5 +1,5 @@
 import { apiClient } from './api';
-import { Transaction } from '@/types/portfolio';
+import { AssetType, Transaction, TransactionType } from '@/types/portfolio';
 
 export const getTransactions = async (): Promise<Transaction[]> => {
   const response = await apiClient.getTransactions();
@@ -60,13 +60,15 @@ export const importFromCSV = async (
 
   for (let i = 1; i < lines.length; i++) {
     const values = lines[i].split(',');
-    const transaction: any = {};
+    const transaction: Partial<Transaction> = {};
 
     headers.forEach((header, index) => {
       const value = values[index]?.trim();
       if (header.includes('date')) transaction.date = value;
-      if (header.includes('asset')) transaction.asset = value.toUpperCase();
-      if (header.includes('type')) transaction.type = value.toLowerCase();
+      if (header.includes('asset'))
+        transaction.asset = value.toUpperCase() as AssetType;
+      if (header.includes('type'))
+        transaction.type = value.toLowerCase() as TransactionType;
       if (header.includes('quantity')) transaction.quantity = parseFloat(value);
       if (
         header.includes('total') ||
