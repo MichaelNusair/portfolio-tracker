@@ -1,18 +1,21 @@
 import { CloudFormationCustomResourceEvent, Context } from 'aws-lambda';
 import { Client } from 'pg';
-import { SecretsManager } from 'aws-sdk';
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from '@aws-sdk/client-secrets-manager';
 import * as fs from 'fs';
 import * as path from 'path';
 
 // Database connection helper
 async function getDbClient(host: string): Promise<Client> {
-  const secretsManager = new SecretsManager();
+  const secretsManager = new SecretsManagerClient({});
 
-  const secretValue = await secretsManager
-    .getSecretValue({
+  const secretValue = await secretsManager.send(
+    new GetSecretValueCommand({
       SecretId: process.env.DB_SECRET_ARN || '',
     })
-    .promise();
+  );
 
   const credentials = JSON.parse(secretValue.SecretString || '{}');
 

@@ -10,8 +10,8 @@
     "postbuild": "cp package.json dist/"
   },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.901.0",
     "@portfolio-tracker/api": "file:../../packages/api",
-    "aws-sdk": "^2.1475.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3"
   },

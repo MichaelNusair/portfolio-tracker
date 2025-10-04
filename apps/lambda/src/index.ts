@@ -4,7 +4,10 @@ import {
   Context,
 } from 'aws-lambda';
 import { Client } from 'pg';
-import { SecretsManager } from 'aws-sdk';
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from '@aws-sdk/client-secrets-manager';
 import jwt from 'jsonwebtoken';
 import {
   validateCreateTransactionInput,
@@ -22,13 +25,13 @@ import {
 
 // Database connection helper
 async function getDbClient(): Promise<Client> {
-  const secretsManager = new SecretsManager();
+  const secretsManager = new SecretsManagerClient({});
 
-  const secretValue = await secretsManager
-    .getSecretValue({
-      SecretId: process.env.DB_SECRET_ARN!,
+  const secretValue = await secretsManager.send(
+    new GetSecretValueCommand({
+      SecretId: process.env.DB_SECRET_ARN || '',
     })
-    .promise();
+  );
 
   const credentials = JSON.parse(secretValue.SecretString!);
 
