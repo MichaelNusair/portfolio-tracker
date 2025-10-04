@@ -1,0 +1,140 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { TransactionsTable } from "@/components/TransactionsTable";
+import { AddTransactionForm } from "@/components/AddTransactionForm";
+import { CSVImport } from "@/components/CSVImport";
+import { Transaction } from "@/types/portfolio";
+import {
+  getTransactions,
+  addTransaction,
+  importFromCSV,
+} from "@/lib/portfolioStorage";
+import { ArrowLeft, Wallet, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+
+const Admin = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  useEffect(() => {
+    loadTransactions();
+  }, []);
+
+  const loadTransactions = () => {
+    setTransactions(getTransactions());
+  };
+
+  const handleAddTransaction = (txData: Omit<Transaction, "id">) => {
+    addTransaction(txData);
+    loadTransactions();
+    toast({
+      title: "Transaction Added",
+      description: "Your transaction has been recorded successfully.",
+    });
+  };
+
+  const handleDeleteTransaction = (id: string) => {
+    toast({
+      title: "Talk to mich",
+      description: "you cant delete from here",
+    }); loadTransactions();
+    toast({
+      title: "Transaction Deleted",
+      description: "The transaction has been removed.",
+    });
+  };
+
+  const handleImportCSV = (_: string) => {
+    toast({
+      title: "Talk to mich",
+      description: "you cant do that",
+    }); loadTransactions();
+  };
+
+  const handleClearAllTransactions = () => {
+    toast({
+      title: "Talk to mich",
+      description: "you cant add from here",
+    }); loadTransactions();
+    toast({
+      title: "All Transactions Cleared",
+      description: "All transactions have been removed from your portfolio.",
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-gradient-primary shadow-glow">
+              <Wallet className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                Admin Panel
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                Manage your transactions
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={() => navigate("/")}
+            variant="outline"
+            className="border-border/50 hover:bg-secondary/50 gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1 space-y-6">
+            <AddTransactionForm onAdd={handleAddTransaction} />
+            <CSVImport onImport={handleImportCSV} />
+          </div>
+
+          <div className="lg:col-span-2">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-foreground">
+                  All Transactions
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {transactions.length} total transactions
+                </p>
+              </div>
+              {transactions.length > 0 && (
+                <Button
+                  onClick={handleClearAllTransactions}
+                  variant="outline"
+                  className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Clear All
+                </Button>
+              )}
+            </div>
+            {transactions.length > 0 ? (
+              <TransactionsTable
+                transactions={transactions}
+                onDelete={handleDeleteTransaction}
+              />
+            ) : (
+              <div className="rounded-lg border border-border/50 bg-card p-12 text-center">
+                <p className="text-muted-foreground">
+                  No transactions yet. Add your first transaction above.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Admin;

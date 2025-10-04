@@ -1,90 +1,190 @@
-# PortfolioTracker
+# Portfolio Tracker
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A full-stack portfolio tracking application with user authentication, transaction management, and real-time portfolio analytics.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## Features
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+- **User Authentication**: Google OAuth via AWS Cognito
+- **Transaction Management**: Add, edit, delete portfolio transactions
+- **Multi-Asset Support**: BTC, ETH, SPY, Nadlan, Pension, Hishtalmut
+- **Portfolio Analytics**: Real-time value calculations and charts
+- **CSV Import**: Bulk import transactions from CSV files
+- **Responsive Design**: Mobile-friendly UI with Tailwind CSS
+- **Real-time Updates**: Live portfolio value calculations
 
-## Finish your CI setup
+## Architecture
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/HtAGBixT5H)
+### Frontend
 
+- **React 19** with TypeScript
+- **Vite** for fast development and building
+- **Tailwind CSS** for styling
+- **shadcn/ui** component library
+- **AWS Cognito** for authentication
+- **Nx** monorepo management
 
-## Generate a library
+### Backend
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
+- **AWS CDK** for infrastructure as code
+- **Amazon RDS** PostgreSQL database
+- **AWS Lambda** serverless functions
+- **Amazon API Gateway** REST API
+- **AWS Cognito** user authentication
+- **AWS Secrets Manager** secure credential storage
 
-## Run tasks
-
-To build the library use:
-
-```sh
-npx nx build pkg1
-```
-
-To run any task with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+## Project Structure
 
 ```
-npx nx release
+portfolio-tracker/
+├── apps/ui/                 # React frontend application
+├── packages/
+│   ├── api/                # Shared API types (legacy)
+│   ├── backend/            # AWS CDK infrastructure
+│   └── lambda/             # Lambda functions
+└── README.md
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+## Quick Start
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Prerequisites
 
-## Keep TypeScript project references up to date
+- Node.js 18+
+- AWS CLI configured with appropriate credentials
+- Google Cloud Console project with OAuth credentials
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+### 1. Install Dependencies
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
+```bash
+npm install
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### 2. Set Up Google OAuth
 
-```sh
-npx nx sync:check
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create/select a project and enable Google+ API
+3. Create OAuth 2.0 credentials (Client ID)
+4. Add authorized redirect URIs for your domain
+
+### 3. Configure Environment Variables
+
+Copy and update the environment files:
+
+```bash
+cp apps/ui/.env.example apps/ui/.env.local
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+Update the following variables in `.env.local`:
 
+```bash
+VITE_API_BASE_URL=https://your-deployed-api.amazonaws.com
+VITE_USER_POOL_ID=your-cognito-user-pool-id
+VITE_USER_POOL_CLIENT_ID=your-cognito-client-id
+VITE_COGNITO_DOMAIN=your-domain.auth.us-east-1.amazoncognito.com
+VITE_REDIRECT_URI=https://your-app-domain.com/auth/callback
+```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### 4. Deploy Backend Infrastructure
 
-## Install Nx Console
+```bash
+npm run deploy:all
+```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+This will:
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- Build Lambda functions
+- Deploy CDK infrastructure (RDS, Cognito, API Gateway)
+- Initialize database schema
 
-## Useful links
+### 5. Update CDK Configuration
 
-Learn more:
+In `packages/backend/lib/backend-stack.ts`, replace:
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- `YOUR_GOOGLE_CLIENT_ID` with your Google OAuth Client ID
+- `YOUR_GOOGLE_CLIENT_SECRET` with your Google OAuth Client Secret
+- Update callback URLs for your domain
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### 6. Start Development Server
+
+```bash
+npm run dev
+```
+
+## Development Commands
+
+```bash
+# Build all projects
+npm run build
+
+# Run linting
+npm run lint
+
+# Deploy backend only
+npm run deploy:backend
+
+# Build Lambda functions only
+npm run build:backend
+
+# Run frontend development server
+npm run dev
+```
+
+## Deployment
+
+### Backend Deployment
+
+```bash
+# Deploy infrastructure changes
+npm run deploy:backend
+
+# Build Lambda functions first
+npm run build:backend
+```
+
+### Environment Variables
+
+After CDK deployment, copy the output values to your frontend `.env.local`:
+
+- `ApiEndpoint` → `VITE_API_BASE_URL`
+- `UserPoolId` → `VITE_USER_POOL_ID`
+- `UserPoolClientId` → `VITE_USER_POOL_CLIENT_ID`
+- `CognitoDomain` → `VITE_COGNITO_DOMAIN`
+
+### Database Schema
+
+The database is automatically initialized with:
+
+- Users table linked to Cognito
+- Transactions table with user isolation
+- Asset holdings and portfolio value views
+- Performance indexes
+
+## API Endpoints
+
+All API endpoints require authentication:
+
+```
+GET    /transactions      - List user transactions
+POST   /transactions      - Create transaction
+PUT    /transactions/{id} - Update transaction
+DELETE /transactions/{id} - Delete transaction
+```
+
+## Security Features
+
+- **User Isolation**: All data is user-specific
+- **JWT Authentication**: Secure API access
+- **CORS Protection**: Configured for frontend domain
+- **VPC Security**: Database in private subnets
+- **Secrets Management**: Secure credential storage
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details

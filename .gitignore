@@ -45,3 +45,5 @@ Thumbs.db
 
 
 *.log
+vite.config.*.timestamp*
+vitest.config.*.timestamp*

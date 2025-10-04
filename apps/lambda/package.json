@@ -1,0 +1,25 @@
+{
+  "name": "portfolio-tracker-lambda",
+  "version": "1.0.0",
+  "description": "Lambda functions for portfolio tracker backend",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "postbuild": "cp package.json dist/"
+  },
+  "dependencies": {
+    "@portfolio-tracker/api": "file:../../packages/api",
+    "aws-sdk": "^2.1475.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.125",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.8.0",
+    "@types/pg": "^8.10.7",
+    "typescript": "^5.2.2"
+  }
+}

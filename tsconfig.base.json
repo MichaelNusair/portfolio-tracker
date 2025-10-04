@@ -16,6 +16,9 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@portfolio-tracker/source"]
+    "customConditions": ["@portfolio-tracker/source"],
+    "paths": {
+      "@portfolio-tracker/api": ["./packages/api/src/index.ts"]
+    }
   }
 }
