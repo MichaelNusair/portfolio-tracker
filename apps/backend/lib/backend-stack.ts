@@ -11,7 +11,6 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as custom_resources from 'aws-cdk-lib/custom-resources';
 import { Duration } from 'aws-cdk-lib';
 // Import shared types for consistency with API schemas
-import type { AssetType, TransactionType } from '@portfolio-tracker/api';
 
 export class PortfolioBackendStack extends cdk.Stack {
   public readonly userPool: cognito.UserPool;
@@ -287,7 +286,7 @@ export class PortfolioBackendStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, 'ApiEndpoint', {
-      value: this.api.url!,
+      value: this.api.url ?? '',
       description: 'API Gateway endpoint',
     });
 

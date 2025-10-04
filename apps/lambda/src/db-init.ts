@@ -10,11 +10,11 @@ async function getDbClient(host: string): Promise<Client> {
 
   const secretValue = await secretsManager
     .getSecretValue({
-      SecretId: process.env.DB_SECRET_ARN!,
+      SecretId: process.env.DB_SECRET_ARN || '',
     })
     .promise();
 
-  const credentials = JSON.parse(secretValue.SecretString!);
+  const credentials = JSON.parse(secretValue.SecretString || '{}');
 
   const client = new Client({
     host: host,
