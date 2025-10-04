@@ -197,6 +197,9 @@ importers:
 
   apps/ui:
     dependencies:
+      '@portfolio-tracker/api':
+        specifier: file:../../packages/api
+        version: link:../../packages/api
       '@radix-ui/react-label':
         specifier: ^2.1.7
         version: 2.1.7(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
